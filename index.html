@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THB AI - আপনার ব্যক্তিগত AI সহকারী</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS ভariables */
+        :root {
+            --primary-color: #10a37f;
+            --primary-dark: #0d8c6d;
+            --sidebar-bg: #202123;
+            --chat-bg: #444654;
+            --user-msg-bg: #343541;
+            --ai-msg-bg: #444654;
+            --text-color: #ececf1;
+            --border-color: #4e4e60;
+            --input-bg: #40414f;
+            --sidebar-width: 260px;
+            --mobile-breakpoint: 768px;
+        }
+
+        /* Reset এবং Base স্টাইল */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--chat-bg);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* Sidebar স্টাইল */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .new-chat-btn {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 12px 16px;
+            margin: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        
+        .new-chat-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .history-item {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .history-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .sidebar-footer-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 6px;
+        }
+        
+        .sidebar-footer-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Main content স্টাইল */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+        
+        .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--user-msg-bg);
+        }
+        
+        .menu-toggle {
+            display: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--user-msg-bg);
+        }
+        
+        .message {
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .user-message {
+            background-color: var(--user-msg-bg);
+        }
+        
+        .ai-message {
+            background-color: var(--ai-msg-bg);
+        }
+        
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .user-avatar {
+            background-color: #7c3aed;
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-content p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .input-area {
+            padding: 15px;
+            background-color: var(--user-msg-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+        }
+        
+        .input-container {
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            display: flex;
+        }
+        
+        input {
+            flex: 1;
+            padding: 14px 45px 14px 15px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        input:focus {
+            outline: 1px solid var(--primary-color);
+        }
+        
+        .send-button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            background-color: var(--user-msg-bg);
+        }
+        
+        /* মোবাইল রেস্পন্সিভ স্টাইল */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                z-index: 100;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .message {
+                padding: 15px 10px;
+                gap: 10px;
+            }
+            
+            .avatar {
+                width: 25px;
+                height: 25px;
+                font-size: 12px;
+            }
+        }
+        
+        /* Dark overlay when sidebar is active on mobile */
+        .overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <button class="new-chat-btn" id="newChatBtn">
+            <i class="fas fa-plus"></i> নতুন চ্যাট
+        </button>
+        
+        <div class="history" id="history">
+            <!-- চ্যাট হিস্ট্রি এখানে লোড হবে -->
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-item">
+                <i class="fas fa-question-circle"></i> সাহায্য
+            </div>
+            <div class="sidebar-footer-item">
+                <i class="fas fa-history"></i> কার্যকলাপ
+            </div>
+            <div class="sidebar-footer-item">
+                <i class="fas fa-user"></i> আপনার প্রোফাইল
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="main-content">
+        <div class="chat-header">
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="logo">THB AI</div>
+            <div></div> <!-- For spacing balance -->
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="message ai-message">
+                <div class="avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <p>হ্যালো! আমি THB AI, আপনার ব্যক্তিগত AI সহকারী। আজ আমি আপনাকে কিভাবে সাহায্য করতে পারি?</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <i class="fas fa-circle-notch fa-spin"></i> THB AI টাইপ করছে...
+        </div>
+        
+        <div class="input-area">
+            <div class="input-container">
+                <input type="text" id="userInput" placeholder="THB AI-কে একটি বার্তা পাঠান...">
+                <button class="send-button" id="sendButton">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const newChatBtn = document.getElementById('newChatBtn');
+        const historyContainer = document.getElementById('history');
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        
+        // API configuration
+        const API_KEY = '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'; // এখানে আপনার OpenAI API key দিন
+        const API_URL = 'https://api.openai.com/v1/chat/completions';
+        
+        // State management
+        let currentChat = [];
+        let chatHistory = JSON.parse(localStorage.getItem('thb-ai-chat-history')) || [];
+        
+        // Initialize the app
+        function init() {
+            loadChatHistory();
+            setupEventListeners();
+        }
+        
+        // Event listeners setup
+        function setupEventListeners() {
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            newChatBtn.addEventListener('click', startNewChat);
+            
+            // Mobile menu toggle
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        }
+        
+        // Load chat history to sidebar
+        function loadChatHistory() {
+            historyContainer.innerHTML = '';
+            
+            if (chatHistory.length === 0) {
+                historyContainer.innerHTML = '<div class="history-item">কোন চ্যাট ইতিহাস নেই</div>';
+                return;
+            }
+            
+            chatHistory.forEach((chat, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `<i class="fas fa-message"></i> ${getChatTitle(chat)}`;
+                
+                historyItem.addEventListener('click', () => loadChat(index));
+                historyContainer.appendChild(historyItem);
+            });
+        }
+        
+        // Generate a title for chat based on first message
+        function getChatTitle(chat) {
+            if (chat.length === 0) return 'খালি চ্যাট';
+            const firstMessage = chat[0].content;
+            return firstMessage.length > 30 ? firstMessage.substring(0, 30) + '...' : firstMessage;
+        }
+        
+        // Start a new chat
+        function startNewChat() {
+            if (currentChat.length > 0) {
+                chatHistory.push([...currentChat]);
+                localStorage.setItem('thb-ai-chat-history', JSON.stringify(chatHistory));
+            }
+            
+            currentChat = [];
+            chatContainer.innerHTML = '';
+            userInput.value = '';
+            
+            addMessage('হ্যালো! আমি THB AI, আপনার ব্যক্তিগত AI সহকারী। আজ আমি আপনাকে কিভাবে সাহায্য করতে পারি?', 'ai');
+            
+            // Close sidebar on mobile after selection
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+            
+            loadChatHistory();
+        }
+        
+        // Load a previous chat
+        function loadChat(index) {
+            if (currentChat.length > 0) {
+                chatHistory.push([...currentChat]);
+            }
+            
+            currentChat = [...chatHistory[index]];
+            chatHistory.splice(index, 1);
+            
+            renderChat();
+            
+            // Close sidebar on mobile after selection
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+        
+        // Render current chat to UI
+        function renderChat() {
+            chatContainer.innerHTML = '';
+            
+            currentChat.forEach(message => {
+                addMessage(message.content, message.role, false);
+            });
+            
+            scrollToBottom();
+        }
+        
+        // Send message to API
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+            
+            // Add user message to UI
+            addMessage(message, 'user');
+            userInput.value = '';
+            sendButton.disabled = true;
+            
+            // Add to current chat
+            currentChat.push({ role: 'user', content: message });
+            
+            // Show typing indicator
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+            
+            try {
+                // Prepare messages for API
+                const messages = [
+                    { role: 'system', content: 'You are THB AI, a helpful assistant that speaks Bengali and English.' },
+                    ...currentChat
+                ];
+                
+                // Call OpenAI API
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: messages,
+                        temperature: 0.7
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+                
+                const aiResponse = data.choices[0].message.content;
+                
+                // Add AI response to UI
+                addMessage(aiResponse, 'ai');
+                
+                // Add to current chat
+                currentChat.push({ role: 'assistant', content: aiResponse });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('দুঃখিত, একটি ত্রুটি occurred. অনুগ্রহপূর্বক পরে আবার চেষ্টা করুন।', 'ai');
+            } finally {
+                // Hide typing indicator
+                typingIndicator.style.display = 'none';
+                sendButton.disabled = false;
+                
+                // Save chat to history
+                localStorage.setItem('thb-ai-current-chat', JSON.stringify(currentChat));
+            }
+        }
+        
+        // Add message to chat UI
+        function addMessage(text, sender, saveToHistory = true) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = `avatar ${sender === 'user' ? 'user-avatar' : ''}`;
+            avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            // Format message with paragraphs
+            const paragraphs = text.split('\n');
+            paragraphs.forEach(p => {
+                if (p.trim() !== '') {
+                    const pElement = document.createElement('p');
+                    pElement.textContent = p;
+                    contentDiv.appendChild(pElement);
+                }
+            });
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentDiv);
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // Scroll chat to bottom
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
