@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THB AI - আপনার ব্যক্তিগত AI সহকারী</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <button class="new-chat-btn" id="newChatBtn">
+            <i class="fas fa-plus"></i> নতুন চ্যাট
+        </button>
+        
+        <div class="history" id="history">
+            <!-- চ্যাট হিস্ট্রি এখানে লোড হবে -->
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-item">
+                <i class="fas fa-question-circle"></i> সাহায্য
+            </div>
+            <div class="sidebar-footer-item">
+                <i class="fas fa-history"></i> কার্যকলাপ
+            </div>
+            <div class="sidebar-footer-item">
+                <i class="fas fa-user"></i> আপনার প্রোফাইল
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="main-content">
+        <div class="chat-header">
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="logo">THB AI</div>
+            <div class="api-status" id="apiStatus">
+                <i class="fas fa-circle"></i> API সংযোগ
+            </div>
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="message ai-message">
+                <div class="avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <p>হ্যালো! আমি THB AI, আপনার ব্যক্তিগত AI সহকারী। আজ আমি আপনাকে কিভাবে সাহায্য করতে পারি?</p>
+                </div>
+            </div>
+            
+            <div class="message ai-message" id="apiKeySetupMessage">
+                <div class="avatar">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="message-content">
+                    <p><strong>API কী সেটআপ প্রয়োজন</strong></p>
+                    <p>THB AI ব্যবহার করতে হলে আপনাকে প্রথমে আপনার OpenAI API কী সেট করতে হবে।</p>
+                    <div class="api-setup">
+                        <input type="password" id="apiKeyInput" placeholder="এখানে আপনার API কী লিখুন">
+                        <button id="saveApiKeyBtn">API কী সেভ করুন</button>
+                        <p class="api-help">
+                            API কী পেতে <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API Keys</a> পেজে ভিজিট করুন।
+                            আপনার API কী শুধুমাত্র আপনার ব্রাউজারে সংরক্ষণ করা হবে এবং কোথাও পাঠানো হবে না।
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <i class="fas fa-circle-notch fa-spin"></i> THB AI টাইপ করছে...
+        </div>
+        
+        <div class="input-area">
+            <div class="input-container">
+                <input type="text" id="userInput" placeholder="THB AI-কে একটি বার্তা পাঠান..." disabled>
+                <button class="send-button" id="sendButton" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
